@@ -1,0 +1,34 @@
+using Neo4j.Driver;
+
+var uri = "neo4j+s://cas-testlab-neo4j.co.uk:7687";
+var username = "stackoverflowuser";
+var password = Environment.GetEnvironmentVariable("NEO4J_PWD");
+
+using var driver = GraphDatabase.Driver(uri, AuthTokens.Basic(username, password));
+
+// try to query the database!
+
+var result = await driver.ExecuteQueryAsync("MATCH (p:Post) RETURN p.title as Title ,p.body as Body,p.score as Score LIMIT 10;");
+ 
+var posts = new List<Post>();
+
+foreach (var record in result.Records)
+{
+
+    var thisPost = new Post();
+    thisPost.Title = record[0]?.ToString() ?? "null";
+    thisPost.Body = record[1]?.ToString() ?? "null";
+    thisPost.Score = record[2]?.ToString() ?? "null";
+
+    posts.Add(thisPost);
+
+    Console.WriteLine("Title: {0}, Body: {1}, Score: {2}", thisPost.Title, thisPost.Body, thisPost.Score);
+}
+
+Console.WriteLine("Done");
+class Post
+{
+    public string? Title { get; set; } 
+    public string? Body { get; set; }  
+    public string? Score { get; set; }  
+}

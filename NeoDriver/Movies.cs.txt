@@ -1,0 +1,19 @@
+using Neo4j.Driver;
+
+var uri = "neo4j+s://cas-testlab-neo4j.co.uk:7687";
+var username = "moviesuser";
+var password = Environment.GetEnvironmentVariable("NEO4J_PWD");
+
+using var driver = GraphDatabase.Driver(uri, AuthTokens.Basic(username, password));
+
+var result = await driver.ExecuteQueryAsync("MATCH (m:Movie) RETURN m.title, m.released, m.tagline LIMIT 50;");
+
+ 
+Console.WriteLine("Result Summary: {0}" ,result.Summary.ToString());
+
+foreach( var r in result.Records)
+{
+    Console.WriteLine("Title: {0}, Released: {1}, Tagline: {2}",  r[0]?.ToString(),r[1]?.ToString(),r[2]?.ToString());
+}
+
+
